@@ -1,4 +1,5 @@
 import pygame
+import random
 from pygame.locals import (
     K_LEFT,
     K_RIGHT,
@@ -6,7 +7,6 @@ from pygame.locals import (
     KEYDOWN,
     QUIT,
 )
-import random
 
 
 class Player(pygame.sprite.Sprite):
@@ -77,9 +77,6 @@ class Score:
 
     def update(self, score):
         self.rendered = self.text.render('Score: ' + str(score), True, (128, 128, 0))
-        self.rect = self.rendered.get_rect()
-        self.rect.top = 0
-        self.rect.left = 0
 
 
 pygame.init()
