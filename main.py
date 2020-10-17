@@ -8,6 +8,7 @@ from pygame.locals import (
 )
 import random
 
+
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super(Player, self).__init__()
@@ -65,30 +66,35 @@ class Ball(pygame.sprite.Sprite):
         self.rect.move_ip(self.velocity)
         return score
 
-class Score(pygame.surface.Surface):
+
+class Score:
     def __init__(self, score):
         self.text = pygame.font.Font('freesansbold.ttf', 32)
-        self.text = self.text.render('Score: ' + str(score), True, (128, 128, 0))
-        self.rect = self.text.get_rect()
+        self.rendered = self.text.render('Score: ' + str(score), True, (128, 128, 0))
+        self.rect = self.rendered.get_rect()
+        self.rect.top = 0
+        self.rect.left = 0
+
+    def update(self, score):
+        self.rendered = self.text.render('Score: ' + str(score), True, (128, 128, 0))
+        self.rect = self.rendered.get_rect()
         self.rect.top = 0
         self.rect.left = 0
 
 
 pygame.init()
-random.seed(pygame.time.get_ticks())
+random.seed()
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 player = Player()
 ball = Ball()
-
-running = True
-
 score = 0
-
-# Main loop
+score_text = Score(score)
+clock = pygame.time.Clock()
+running = True
+paused = False
 while running:
-    clock = pygame.time.Clock()
     clock.tick(60)
     # Look at every event in the queue
     for event in pygame.event.get():
@@ -96,7 +102,14 @@ while running:
         if event.type == KEYDOWN:
             # Was it the Escape key? If so, stop the loop.
             if event.key == K_ESCAPE:
-                running = False
+                paused = True
+                while paused:
+                    for event in pygame.event.get():
+                        # Did the user hit a key?
+                        if event.type == KEYDOWN:
+                            # Was it the Escape key? If so, stop the loop.
+                            if event.key == K_ESCAPE:
+                                paused = False
 
         # Did the user click the window close button? If so, stop the loop.
         elif event.type == QUIT:
@@ -107,8 +120,8 @@ while running:
     pressed_keys = pygame.key.get_pressed()
     player.move(pressed_keys)
     score = ball.move(player, score)
-    score_text = Score(score)
-    screen.blit(score_text.text, score_text.rect)
+    score_text.update(score)
+    screen.blit(score_text.rendered, score_text.rect)
     screen.blit(ball.surf, ball.rect)
     screen.blit(player.surf, player.rect)
     pygame.display.flip()
